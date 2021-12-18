@@ -1,0 +1,25 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2021-12-18T12:41:31-05:00",
+  "id": "TRABAJO_2_PACKET_TRACER",
+  "duration": 15,
+  "title": "Guía técnica para configurar OSPFv2 con autenticación MD5 e interfaces pasivas.",
+  "summary": "Guía técnica configurar OSPFv2 con autenticación MD5",
+  "source": "TRABAJO_2_ACTIVIDAD_PACKETTRACER.md",
+  "theme": "",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "codelab",
+    "markdown"
+  ],
+  "tags": [
+    "web"
+  ],
+  "feedback": "Enlace github para los issue",
+  "url": "TRABAJO_2_PACKET_TRACER"
+}

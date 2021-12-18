@@ -1,0 +1,255 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Guía técnica para configurar OSPFv2 con autenticación MD5 e interfaces pasivas.</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/codelab-elements/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="TRABAJO_2_PACKET_TRACER"
+                  title="Guía técnica para configurar OSPFv2 con autenticación MD5 e interfaces pasivas."
+                  environment="web"
+                  feedback-link="Enlace github para los issue">
+    
+      <google-codelab-step label="Página 1" duration="2">
+        <h2 is-upgraded>Mostramos el esquema de red que usaremos durante la guía:</h2>
+<p class="image-container"><img alt="Foto0_PACKET2" src="img/c894331e01a16d31.jpg"></p>
+<aside class="warning"><p>TENEMOS 4 ZONAS:</p>
+</aside>
+<p>Zona Roja: 2 PC&#39;s conectados al Switch0 y este conectado al Router1. A su vez el PC5 estará después conectado a una <em>VLAN</em> llamada <em>administradores</em>.</p>
+<p>Zona amarilla: 2 PC&#39;s conectados al Switch1 y este conectado al Router2.</p>
+<p>Zona Amarilla: 3 PC&#39;s conectados al Switch2 y este conectado al Router3. A su vez el PC6 estará conectado a una <em>VLAN</em> llamada <em>administradores</em>.</p>
+<p>Zona azul: Estan interconectados <em>Router1, Router2 y Router3</em>, mediantes cables seriales, que componen el <em>AREA 0</em> o bakcbone del protoclo <strong>OSPFv2</strong>, veremos mas adelante.</p>
+<aside class="special"><p>El objetivo de está guía técnica es poder configurar con <strong>OSPFv2</strong> y autenticación <strong>MD5</strong> las diferentes redes que componen el supuesto. Indicando también que interfaces queremos que sean pasiva como metódo de seguridad.</p>
+</aside>
+<p><strong>INFORMACIÓN DE CONFIGURACIÓN E INTERFACES DE LOS DISTINTOS DISPOSITIVOS</strong></p>
+<ul>
+<li>PC1<ul>
+<li><strong>IP</strong>: 192.168.2.11</li>
+<li><strong>Máscara de subred</strong>: 255.255.255.0</li>
+<li><strong>Gateway</strong>: 192.168.2.1</li>
+<li><strong>Interfaz a la que se conecta</strong>: FastEthernet0/1 del Switch0</li>
+</ul>
+</li>
+<li>PC2<ul>
+<li><strong>IP</strong>: 192.168.2.12</li>
+<li><strong>Máscara de subred</strong>: 255.255.255.0</li>
+<li><strong>Gateway</strong>: 192.168.2.1</li>
+<li><strong>Interfaz a la que se conecta</strong>: FastEthernet0/2 del Switch0</li>
+</ul>
+</li>
+<li>PC3<ul>
+<li><strong>IP</strong>: 192.168.3.11</li>
+<li><strong>Máscara de subred</strong>: 255.255.255.0</li>
+<li><strong>Gateway</strong>: 192.168.3.1</li>
+<li><strong>Interfaz a la que se conecta</strong>: FastEthernet0/1 del Switch2</li>
+</ul>
+</li>
+<li>PC4<ul>
+<li><strong>IP</strong>: 192.168.3.12</li>
+<li><strong>Máscara de subred</strong>: 255.255.255.0</li>
+<li><strong>Gateway</strong>: 192.168.3.1</li>
+<li><strong>Interfaz a la que se conecta</strong>: FastEthernet0/2 del Switch2</li>
+</ul>
+</li>
+<li>PC5<ul>
+<li><strong>IP</strong>: 200.10.0.3</li>
+<li><strong>Máscara de subred</strong>: 255.255.255.0</li>
+<li><strong>Gateway</strong>: 200.10.0.1</li>
+<li><strong>Interfaz a la que se conecta</strong>: FastEthernet0/1 del Switch0</li>
+</ul>
+</li>
+<li>PC6<ul>
+<li><strong>IP</strong>: 200.10.0.4</li>
+<li><strong>Máscara de subred</strong>: 255.255.255.0</li>
+<li><strong>Gateway</strong>: 200.10.0.2</li>
+<li><strong>Interfaz a la que se conecta</strong>: FastEthernet0/3 del Switch2</li>
+</ul>
+</li>
+<li>PC7<ul>
+<li><strong>IP</strong>: 192.168.1.2</li>
+<li><strong>Máscara de subred</strong>: 255.255.255.0</li>
+<li><strong>Gateway</strong>: 192.168.1.1</li>
+<li><strong>Interfaz a la que se conecta</strong>: FastEthernet0/2 del Switch0</li>
+</ul>
+</li>
+<li>Switch0<ul>
+<li><strong>Interfaz a la que se conecta</strong>: GigaBitEthernet0/0 del Router1</li>
+</ul>
+</li>
+<li>Switch1<ul>
+<li><strong>Interfaz a la que se conecta</strong>: GigaBitEthernet0/0 del Router2</li>
+</ul>
+</li>
+<li>Switch2<ul>
+<li><strong>Interfaz a la que se conecta</strong>: GigaBitEthernet0/0 del Router3</li>
+</ul>
+</li>
+<li>Router1<ul>
+<li><strong>IP</strong>: 192.168.1.1 /24</li>
+<li><strong>Máscara de subred</strong>: 255.255.255.0</li>
+<li><strong>Interfaz</strong>: GigaBitEthernet0/0</li>
+<li><strong>Interfaz</strong>: Serial0/1/0 <strong>IP</strong>: 10.0.0.1 /30 <strong>Máscara subred</strong>: 255.255.255.252</li>
+<li><strong>Interfaz</strong>: Serial0/1/1 <strong>IP</strong>: 10.0.0.5 /30 <strong>Máscara subred</strong>: 255.255.255.252</li>
+</ul>
+</li>
+<li>Router2<ul>
+<li><strong>IP</strong>: 192.168.2.1 /24</li>
+<li><strong>Máscara de subred</strong>: 255.255.255.0</li>
+<li><strong>Interfaz</strong>: GigaBitEthernet0/0</li>
+<li><strong>Interfaz</strong>: Serial0/1/0 <strong>IP</strong>: 10.0.0.2 /30 <strong>Máscara subred</strong>: 255.255.255.252</li>
+<li><strong>Interfaz</strong>: Serial0/1/1 <strong>IP</strong>: 10.0.0.9 /30 <strong>Máscara subred</strong>: 255.255.255.252</li>
+</ul>
+</li>
+<li>Router3<ul>
+<li><strong>IP</strong>: 192.168.3.1 /24</li>
+<li><strong>Máscara de subred</strong>: 255.255.255.0</li>
+<li><strong>Interfaz</strong>: GigaBitEthernet0/0</li>
+<li><strong>Interfaz</strong>: Serial0/1/0 <strong>IP</strong>: 10.0.0.6 /30 <strong>Máscara subred</strong>: 255.255.255.252</li>
+<li><strong>Interfaz</strong>: Serial0/1/1 <strong>IP</strong>: 10.0.0.10 /30 <strong>Máscara subred</strong>: 255.255.255.252</li>
+</ul>
+</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Página 2" duration="2">
+        <h2 is-upgraded>Configuración OSPFv2 a los diferentes Routers del esquema.</h2>
+<aside class="special"><p>Una vez configurada las IP&#39;s de los diferentes host&#39;s y routers y conectados por las interfaces correspondientes a los diferentes dispositivos.<br>Procederemos a configurar <em>OSPFv2</em> con única <strong>área 0</strong> o <em>&#34;backbone&#34;</em>.</p>
+</aside>
+<aside class="warning"><p><strong>Configuración Router1</strong></p>
+</aside>
+<p class="image-container"><img alt="Foto1_PACKET2" src="img/e45a30c1d5cd2a4f.jpg"></p>
+<p>Le indicamos un ID, y elegimos las redes a las que está conectado directamente el <em>Router1</em> y indicando el área <strong>&#34;area 0&#34;</strong> o <em>backbone</em>.</p>
+<aside class="special"><p>Terminamos con <em>do wr</em>, para guardar la configuración y <em>end</em>. Para terminar.</p>
+</aside>
+<p class="image-container"><img alt="Foto1_2_PACKET2" src="img/c3e8219ce77bf985.jpg"></p>
+<aside class="warning"><p><strong>Configuración Router2</strong></p>
+</aside>
+<p class="image-container"><img alt="Foto2_PACKET2" src="img/dc6894570a8bf5d3.jpg"></p>
+<p>Aquí lo mismo, indicamos el ID con el que trabajamos del protocolo <em>OSPFv2</em>. Indicamos las redes a las que está conectado directamente el <em>Router2</em> y indicando el área <strong>&#34;area 0&#34;</strong> o backbone. Y guardamos configuración y finalizamos con <em>end</em>.</p>
+<aside class="warning"><p><strong>Configuración Router3</strong></p>
+</aside>
+<p class="image-container"><img alt="Foto3_PACKET2" src="img/bc4d73a202bec85.jpg"></p>
+<p>De nuevo, indicamos ID. Y las redes que se conecta directamente el <em>Router3</em> y indicando el área <strong>&#34;area 0&#34;</strong> o <em>backbone</em>. Guardamos y finalizamos.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Página 3" duration="2">
+        <h2 is-upgraded>Configuración de &#34;Interfaces Pasivas&#34;.</h2>
+<h2 is-upgraded>Declararemos una serie de interfaces como pasivas, para que los distintos paquetes que se comunican en el protocolo OSPFv2. No vayan más allá de lo necesario. Es una medida de seguridad. Por si se interceptará tráfico para obtener información de como está estructurada la red. Y dejando que si circulen por las interfaces seriales de los 3 Routers.</h2>
+<aside class="warning"><p><strong>Interfaces Pasivas Router1</strong></p>
+</aside>
+<p class="image-container"><img alt="Foto1_3_PACKET2" src="img/e1e49b71860abe80.jpg"></p>
+<aside class="warning"><p>Lo configuraremos usando de nuevo: <em>router ospf 10</em>.</p>
+</aside>
+<aside class="warning"><p><strong>Interfaces Pasivas Router2</strong></p>
+</aside>
+<p class="image-container"><img alt="Foto2_1PACKET2" src="img/ba369a00708b86ac.jpg"></p>
+<aside class="warning"><p><strong>Interfaces Pasivas Router3</strong></p>
+</aside>
+<p class="image-container"><img alt="Foto3_1PACKET2" src="img/2f5626008053117b.jpg"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Página 4" duration="3">
+        <h2 is-upgraded>Añadimos a OSPFv2, en los dos Routers correspondientes la red, donde se encuentran los equipos de la <em>VLAN administradores</em>.</h2>
+<aside class="warning"><p><strong>Configuración Router1 Red VLAN administradores</strong></p>
+</aside>
+<p class="image-container"><img alt="Foto1_4_PACKET2" src="img/3909f9c9d5f8282b.jpg"></p>
+<aside class="warning"><p><strong>Configuración Router3 Red VLAN administradores</strong></p>
+</aside>
+<p class="image-container"><img alt="Foto3_4_PACKET2" src="img/5ca5e80c92489872.jpg"></p>
+<aside class="special"><p>Indicando como hemos dicho antes. El área principal <strong>area 0</strong>.</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Página 5" duration="1">
+        <h2 is-upgraded>Lista de todas las redes con sus adyacencias. En cada uno de los Routers.</h2>
+<aside class="warning"><p><strong>Lista de Redes con las adyacencias Router1</strong></p>
+</aside>
+<p class="image-container"><img alt="Foto1_5_PACKET2" src="img/1eeeeff9fc85cb0f.jpg"></p>
+<aside class="special"><p>Podemos ver con la <strong>&#34;C&#34;</strong>, aquellas que están conectadas directamente con el Router. Y con la <strong>&#34;O&#34;</strong>, aquellas con la que ha hecho adyacencia a través de los Routers vecinos.</p>
+</aside>
+<aside class="warning"><p><strong>Lista de Redes con las adyacencias Router2</strong></p>
+</aside>
+<p class="image-container"><img alt="Foto2_2_PACKET2" src="img/9dc0b93cfc9f1b77.jpg"></p>
+<aside class="warning"><p><strong>Lista de Redes con las adyacencias Router3</strong></p>
+</aside>
+<p class="image-container"><img alt="Foto3_3_PACKET2" src="img/3da121cbbfb56379.jpg"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Página 6" duration="4">
+        <h2 is-upgraded>Lo siguiente, que harémos será configurar la autenticación de OSPFv2 usando el cifrado MD5. De está manera los paquetes no irán en <em>&#34;texto plano&#34;</em>.</h2>
+<aside class="warning"><p><strong>Configuración autenticación MD5 Router1</strong></p>
+</aside>
+<p class="image-container"><img alt="Foto1_6_PACKET2" src="img/971176f2028edae3.jpg"></p>
+<p>Hemos configurado la interfaz <em>GigabitEthernet 0/0</em>, es la que conecta el Router con el Switch de una de las redes.</p>
+<p class="image-container"><img alt="Foto1_7_PACKET2" src="img/54043e8c3aae7962.jpg"></p>
+<p>Aquí, hemos configurado la sub-interfaz, que se crea para la VLAN, ya que en esta red tenemos un host que pertenece a una VLAN de administradores.<br>Es la <em>GigabitEthernet 0/0.10</em>, que conecta el Router con el host de la VLAN.</p>
+<p class="image-container"><img alt="Foto1_8_PACKET2" src="img/86b03484723b95ed.jpg"><img alt="Foto1_9_PACKET2" src="img/60fe5abc7af79234.jpg"></p>
+<p>En este caso pasamos a configurar la interfaz <em>Serial0/1/0</em> y <em>Serial0/1/1</em> que conecta el Router1 con los otros 2 routers.</p>
+<aside class="special"><p>En el comando como vemos, indicamos primero la interfaz con la que trabajar. Luego le estamos indicando que autenticar con <em>MD5</em> e indicando al final la clave. Y terminamos activando la autenticación.</p>
+</aside>
+<aside class="warning"><p><strong>Configuración autenticación MD5 Router2</strong></p>
+</aside>
+<p class="image-container"><img alt="Foto2_3_PACKET2" src="img/7bcb60cb508c1779.jpg"></p>
+<p>Hemos configurado la interfaz <em>GigabitEthernet 0/0</em>, es la que conecta el Router con el Switch de una de las redes.</p>
+<p class="image-container"><img alt="Foto2_4_PACKET2" src="img/fcb123284ca20f1f.jpg"><img alt="Foto2_5_PACKET2" src="img/490a3d225abeab14.jpg"></p>
+<p>En este caso pasamos a configurar la interfaz <em>Serial0/1/0</em> y <em>Serial0/1/1</em> que conecta el Router2 con los otros 2 routers.</p>
+<aside class="warning"><p><strong>Configuración autenticación MD5 Router3</strong></p>
+</aside>
+<p class="image-container"><img alt="Foto3_4_PACKET2" src="img/9c2bdcfa8dcbfb2b.jpg"></p>
+<p>Hemos configurado la interfaz <em>GigabitEthernet 0/0</em>, es la que conecta el Router con el Switch de una de las redes.</p>
+<p class="image-container"><img alt="Foto3_5_PACKET2" src="img/f18bab37584b8ef5.jpg"></p>
+<p>Aquí, hemos configurado la sub-interfaz, que se crea para la VLAN, ya que en esta red también tenemos el otro host que pertenece a una VLAN de administradores.<br>Es la <em>GigabitEthernet 0/0.10</em>, que conecta el Router con el host de la VLAN.</p>
+<p class="image-container"><img alt="Foto3_5_PACKET2" src="img/31320efd9a0bc4e5.jpg"></p>
+<p>En este caso pasamos a configurar la interfaz <em>Serial0/1/0</em>. Puse solo de una de las interfaces serial. Porque el procedimiento es el mismo. Y creo que se ha entendido.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Página 7" duration="1">
+        <h2 is-upgraded>Demostración que se está usando la autenticación vía MD5 en las interfaces</h2>
+<aside class="warning"><p>He puesto 2 ejemplos en lo que debemos fijarnos para ver que efectivamente se está usando OSPFv2 con autenticación por MD5.</p>
+</aside>
+<p class="image-container"><img alt="Foto1_10_PACKET2" src="img/cff676b19244c424.jpg"></p>
+<p class="image-container"><img alt="Foto3_7_PACKET2" src="img/f454213e33b23a7c.jpg"></p>
+<aside class="special"><p>El comando sería: <strong>show ip ospf interface nombre_interfaz</strong><br>Y debemos fijarnos en el mensaje de abajo y que se está usando la Key con la ID que creamos.</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/codelab-elements/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/prettify.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/codelab-elements.js"></script>
+
+</body>
+</html>
